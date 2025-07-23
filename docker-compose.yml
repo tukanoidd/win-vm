@@ -1,0 +1,32 @@
+services:
+  windows:
+    image: dockurr/windows
+    container_name: windows
+    devices:
+      - /dev/kvm
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    environment:
+      VERSION: ${VERSION:-}
+      EDITION: ${EDITION:-}
+      RAM_SIZE: ${RAM_SIZE:-}
+      CPU_CORES: ${CPU_CORES:-}
+      DISK_SIZE: ${DISK_SIZE:-}
+      ARGUMENTS: ${ARGUMENTS:-}
+      DISK_FMT: ${DISK_FMT:-}
+      LANGUAGE: ${LANGUAGE:-}
+      REGION: ${REGION:-}
+      KEYBOARD: ${KEYBOARD:-}
+      DEBUG: ${DEBUG:-}
+      USERNAME: ${USERNAME:-}
+      PASSWORD: ${PASSWORD:-}
+    ports:
+      - 8006:8006
+      - 3389:3389/tcp
+      - 3389:3389/udp
+    volumes:
+      - ./storage:/storage
+      - ./data:/data
+    restart: always
+    stop_grace_period: 2m
