@@ -25,6 +25,9 @@ services:
       - 8006:8006
       - 3389:3389/tcp
       - 3389:3389/udp
+      # Work
+      - 3100:3100
+      - 2180:2180
     volumes:
       - ./storage:/storage
       - ./data:/data

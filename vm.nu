@@ -2,6 +2,29 @@
 
 use std/log
 
+def "main ip" [] {
+  let ps = (docker compose ps --format json | from json)
+
+  let id = match ($ps | describe | str starts-with 'record') {
+    true => $ps.ID,
+    false => ($ps
+      | find {$in.SERVICE == "windows"}
+      | get 0
+      | get ID) 
+  };
+
+  let ip = (docker inspect $id
+    | from json
+    | into record
+    | get NetworkSettings
+    | get Networks
+    | flatten
+    | into record
+    | get IPAddress);
+
+  $ip
+}
+
 def main [
   --version (-v): string = 11l,
   --ram_size (-r): filesize = 4GB,
@@ -114,24 +137,7 @@ def main [
       let $logs = (open docker_logs.txt)
 
       if ($logs | str contains "Windows started succesfully, visit") {
-        let ps = (docker compose ps --format json | from json)
-
-        let id = match ($ps | describe | str starts-with 'record') {
-          true => $ps.ID,
-          false => ($ps
-            | find {$in.SERVICE == "windows"}
-            | get 0
-            | get ID) 
-        };
-
-        let ip = (docker inspect $id
-          | from json
-          | into record
-          | get NetworkSettings
-          | get Networks
-          | flatten
-          | into record
-          | get IPAddress);
+        let ip = (main ip);
 
         if $rdp_task >= 0 {
           job kill $rdp_task
